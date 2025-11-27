@@ -13,8 +13,12 @@ Brian's Tasks - a minimal, file-based task tracker that lives in your git repo.
 ## Quick Start
 
 ```bash
-# Install from source
-cargo install --path .
+# Install with homebrew
+brew install brianm/tools/bt
+
+# Or build and "install" from checked out source
+cargo build --release
+cp target/release/bt ~/.bin/ # or wherever
 
 # Initialize in your project
 cd your-project
