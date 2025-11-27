@@ -1,0 +1,3 @@
+# Use union merge for task files - concatenates both sides
+# This helps with the append-only log section
+*.md merge=union
