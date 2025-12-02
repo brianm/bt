@@ -80,11 +80,13 @@ Users cannot log in when their password contains special characters like `&` or 
 
 Append-only section for updates. Each entry is timestamped.
 
-### 2025-11-25T11:00:00Z brian
+---
+# Log: 2025-11-25T11:00:00Z brian
 
 Found the root cause - password is being interpolated into SQL without proper escaping in the legacy auth path.
 
-### 2025-11-25T14:22:00Z brian
+---
+# Log: 2025-11-25T14:22:00Z brian
 
 Fixed in commit abc1234. Need to add tests before closing.
 ```
@@ -144,9 +146,11 @@ When a blocking task is closed, all tasks it was blocking are checked - if they 
 The log section follows the YAML frontmatter and main description. It's separated by a horizontal rule (`---`) and a `## Log` heading.
 
 Each log entry:
-- Starts with `### {ISO-8601-timestamp} {author}`
-- Contains freeform markdown
+- Starts with a two-line separator: `---` followed by `# Log: {ISO-8601-timestamp} {author}`
+- Contains freeform markdown (including headings, since the entry separator is unique)
 - Is append-only (never edit previous entries)
+
+The two-line separator (`---\n# Log: {timestamp} {author}`) is used because it's extremely unlikely to appear in normal markdown content, making parsing robust even when log entries contain markdown headings.
 
 This structure makes concurrent additions merge cleanly.
 

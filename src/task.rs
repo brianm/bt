@@ -116,7 +116,7 @@ impl Task {
         };
 
         let log = format!(
-            "### {} {}\n\nCreated task.\n",
+            "---\n# Log: {} {}\n\nCreated task.\n",
             now.format("%Y-%m-%dT%H:%M:%SZ"),
             frontmatter.author.as_deref().unwrap_or("unknown")
         );
@@ -187,7 +187,7 @@ impl Task {
             .unwrap_or("unknown");
 
         let entry = format!(
-            "\n### {} {}\n\n{}\n",
+            "\n---\n# Log: {} {}\n\n{}\n",
             now.format("%Y-%m-%dT%H:%M:%SZ"),
             author,
             message

@@ -32,20 +32,24 @@ pub fn activity(path: &Path, limit: usize, all: bool) -> Result<(), StoreError> 
         let short_id = resolver.shortest_prefix(task.id()).to_string();
 
         // Parse log entries from the task's log field
-        // Format: ### 2025-11-26T23:41:41Z Author Name\n\nMessage content\n
-        for section in task.log.split("\n### ") {
+        // Format: ---\n# Log: 2025-11-26T23:41:41Z Author Name\n\nMessage content\n
+        for section in task.log.split("\n---\n# Log: ") {
             let section = section.trim();
             if section.is_empty() {
                 continue;
             }
 
             // Parse the header line: "2025-11-26T23:41:41Z Author Name"
+            // Handle first entry which starts with "---\n# Log: " (no leading newline)
             let lines: Vec<&str> = section.lines().collect();
             if lines.is_empty() {
                 continue;
             }
 
-            let header = lines[0].trim_start_matches("### ");
+            let header = lines[0]
+                .trim_start_matches("---")
+                .trim_start()
+                .trim_start_matches("# Log: ");
             let parts: Vec<&str> = header.splitn(2, ' ').collect();
             if parts.len() < 2 {
                 continue;

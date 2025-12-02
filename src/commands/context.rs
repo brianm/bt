@@ -87,11 +87,11 @@ pub fn context(path: &Path, id: &str) -> Result<(), StoreError> {
     }
 
     // === Recent Log Entries ===
-    let log_section = task.body.find("## Log").map(|pos| &task.body[pos..]);
-    if let Some(log) = log_section {
-        let entries: Vec<_> = log
-            .split("\n### ")
-            .skip(1) // Skip "## Log" header
+    // Use the task's log field directly
+    if !task.log.trim().is_empty() {
+        let entries: Vec<_> = task
+            .log
+            .split("\n---\n# Log: ")
             .take(5) // Last 5 entries
             .collect();
 
@@ -105,7 +105,11 @@ pub fn context(path: &Path, id: &str) -> Result<(), StoreError> {
                 }
 
                 // Parse header: "2025-11-26T23:42:29Z Author Name"
-                let header = lines[0].trim_start_matches("### ");
+                // Handle first entry which starts with "---\n# Log: " (no leading newline)
+                let header = lines[0]
+                    .trim_start_matches("---")
+                    .trim_start()
+                    .trim_start_matches("# Log: ");
                 let parts: Vec<&str> = header.splitn(2, ' ').collect();
                 if parts.len() >= 2 {
                     let timestamp = parts[0];
