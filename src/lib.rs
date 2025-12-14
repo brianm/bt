@@ -4,6 +4,7 @@ pub mod id;
 pub mod prefix;
 pub mod store;
 pub mod task;
+pub mod term;
 
 pub use config::Config;
 pub use id::TaskId;

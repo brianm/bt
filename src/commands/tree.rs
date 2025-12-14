@@ -1,6 +1,7 @@
 use crate::id::TaskId;
 use crate::prefix::PrefixResolver;
 use crate::store::{Store, StoreError};
+use crate::term::LineFormatter;
 use colored::*;
 use std::collections::{HashMap, HashSet};
 use std::path::Path;
@@ -70,6 +71,9 @@ pub fn tree(path: &Path) -> Result<(), StoreError> {
     // Track which tasks have been printed
     let mut printed: HashSet<TaskId> = HashSet::new();
 
+    // Auto-detect terminal width for line truncation
+    let formatter = LineFormatter::auto();
+
     // Print each root and its descendants
     for (i, root_id) in roots.iter().enumerate() {
         let is_last_root = i == roots.len() - 1;
@@ -80,8 +84,10 @@ pub fn tree(path: &Path) -> Result<(), StoreError> {
             &active_ids,
             &mut printed,
             "",
+            0, // prefix_width starts at 0
             is_last_root,
             true,
+            &formatter,
         );
     }
 
@@ -95,8 +101,10 @@ fn print_task_tree(
     active_ids: &HashSet<TaskId>,
     printed: &mut HashSet<TaskId>,
     prefix: &str,
+    prefix_width: usize,
     is_last: bool,
     is_root: bool,
+    formatter: &LineFormatter,
 ) {
     // Skip if already printed
     if printed.contains(task_id) {
@@ -121,13 +129,14 @@ fn print_task_tree(
 
     printed.insert(task_id.clone());
 
-    // Determine the connector
-    let connector = if is_root {
-        ""
+    // Determine the connector and its display width
+    // Box-drawing characters (├, └, │, ─) are 1 column wide each
+    let (connector, connector_width) = if is_root {
+        ("", 0)
     } else if is_last {
-        "└── "
+        ("└── ", 4)
     } else {
-        "├── "
+        ("├── ", 4)
     };
 
     // Color: green if ready (no active blockers), red if blocked
@@ -137,22 +146,25 @@ fn print_task_tree(
         short_id.red()
     };
 
-    // Show blockers annotation if multiple
+    // Calculate total prefix width for content truncation
+    // Content format: "{colored_id}  {title}" or with blocker annotation
+    // The ID is ~8 chars + 2 spaces before title
+    let content_prefix_width = prefix_width + connector_width + short_id.len() + 2;
+
+    // Build and truncate content
     if active_blockers.len() > 1 {
         let blocker_ids: Vec<String> = active_blockers
             .iter()
             .filter_map(|b| task_info.get(*b).map(|(_, sid, _)| sid.clone()))
             .collect();
-        println!(
-            "{}{}{}  {}  {}",
-            prefix,
-            connector,
-            colored_id,
-            title,
-            format!("(blocked by: {})", blocker_ids.join(", ")).dimmed()
-        );
+        let annotation = format!("(blocked by: {})", blocker_ids.join(", "));
+        // Truncate title + annotation together
+        let content = format!("{}  {}", title, annotation);
+        let truncated = formatter.truncate(&content, content_prefix_width);
+        println!("{}{}{}  {}", prefix, connector, colored_id, truncated.dimmed());
     } else {
-        println!("{}{}{}  {}", prefix, connector, colored_id, title);
+        let truncated_title = formatter.truncate(title, content_prefix_width);
+        println!("{}{}{}  {}", prefix, connector, colored_id, truncated_title);
     }
 
     // Get and sort children (tasks this one blocks)
@@ -168,9 +180,9 @@ fn print_task_tree(
                 .collect();
 
             // All blockers except this one must be printed
-            child_active_blockers.iter().all(|b| {
-                *b == task_id || printed.contains(*b)
-            })
+            child_active_blockers
+                .iter()
+                .all(|b| *b == task_id || printed.contains(*b))
         } else {
             false
         }
@@ -182,13 +194,14 @@ fn print_task_tree(
         a_title.cmp(b_title)
     });
 
-    // Calculate new prefix for children
-    let new_prefix = if is_root {
-        prefix.to_string()
+    // Calculate new prefix and its width for children
+    // Each level adds 4 characters of indentation
+    let (new_prefix, new_prefix_width) = if is_root {
+        (prefix.to_string(), prefix_width)
     } else if is_last {
-        format!("{}    ", prefix)
+        (format!("{}    ", prefix), prefix_width + 4)
     } else {
-        format!("{}│   ", prefix)
+        (format!("{}│   ", prefix), prefix_width + 4)
     };
 
     for (i, child_id) in children.iter().enumerate() {
@@ -200,8 +213,10 @@ fn print_task_tree(
             active_ids,
             printed,
             &new_prefix,
+            new_prefix_width,
             is_last_child,
             false,
+            formatter,
         );
     }
 }

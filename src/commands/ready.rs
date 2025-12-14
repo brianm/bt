@@ -1,6 +1,7 @@
 use crate::prefix::PrefixResolver;
 use crate::store::{Store, StoreError};
 use crate::task::Priority;
+use crate::term::LineFormatter;
 use colored::*;
 use std::path::Path;
 
@@ -12,6 +13,12 @@ pub fn ready(path: &Path) -> Result<(), StoreError> {
     // This ensures displayed prefixes work with `bt edit`, which searches all directories
     let resolver = PrefixResolver::new(&store)?;
 
+    // Auto-detect terminal width for line truncation
+    let formatter = LineFormatter::auto();
+
+    // Fixed columns: short_id (8) + tab + priority (8) + tab = ~18 chars
+    const FIXED_COLS: usize = 18;
+
     for (_, task) in &tasks {
         let short_id = resolver.shortest_prefix(task.id());
 
@@ -22,7 +29,8 @@ pub fn ready(path: &Path) -> Result<(), StoreError> {
             Priority::Low => "low".blue(),
         };
 
-        println!("{}\t{}\t{}", short_id, priority_colored, task.title());
+        let title = formatter.truncate(task.title(), FIXED_COLS);
+        println!("{}\t{}\t{}", short_id, priority_colored, title);
     }
 
     Ok(())

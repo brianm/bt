@@ -1,6 +1,7 @@
 use crate::prefix::PrefixResolver;
 use crate::store::{Store, StoreError};
 use crate::task::{Priority, Status};
+use crate::term::LineFormatter;
 use chrono::{DateTime, Utc};
 use colored::*;
 use serde::Serialize;
@@ -45,6 +46,20 @@ pub fn list(
     // Resolve shortest unique prefixes across ALL tasks (including closed/cancelled)
     // This ensures displayed prefixes work with `bt edit`, which searches all directories
     let resolver = PrefixResolver::new(&store)?;
+
+    // Auto-detect terminal width for line truncation (disabled for JSON output)
+    let formatter = if json {
+        LineFormatter::new(None)
+    } else {
+        LineFormatter::auto()
+    };
+
+    // Fixed columns for compact format: short_id (8) + status (11) + priority (8) + tabs (3) = ~30
+    const COMPACT_FIXED_COLS: usize = 30;
+    // For long format, title is on its own line but we leave some margin
+    const LONG_MARGIN: usize = 2;
+    // Body preview indent
+    const BODY_INDENT: usize = 4;
 
     let mut json_tasks: Vec<TaskJson> = Vec::new();
     let mut count = 0;
@@ -123,29 +138,34 @@ pub fn list(
             };
 
             if long {
-                println!("{}", task.title().bold());
+                let title = formatter.truncate(task.title(), LONG_MARGIN);
+                println!("{}", title.bold());
                 println!("  ID: {}", short_id);
                 println!(
                     "  Status: {}  Priority: {}",
                     status_colored, priority_colored
                 );
                 if show_body {
-                    let preview = get_body_preview(&task.body, 200);
+                    let body_width = formatter
+                        .available_width(BODY_INDENT)
+                        .unwrap_or(200);
+                    let preview = get_body_preview(&task.body, body_width);
                     if !preview.is_empty() {
                         println!("  {}", preview.dimmed());
                     }
                 }
                 println!();
             } else {
+                let title = formatter.truncate(task.title(), COMPACT_FIXED_COLS);
                 println!(
                     "{}\t{}\t{}\t{}",
-                    short_id,
-                    status_colored,
-                    priority_colored,
-                    task.title()
+                    short_id, status_colored, priority_colored, title
                 );
                 if show_body {
-                    let preview = get_body_preview(&task.body, 80);
+                    let body_width = formatter
+                        .available_width(BODY_INDENT)
+                        .unwrap_or(80);
+                    let preview = get_body_preview(&task.body, body_width);
                     if !preview.is_empty() {
                         println!("    {}", preview.dimmed());
                     }

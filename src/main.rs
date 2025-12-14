@@ -12,6 +12,7 @@ mod id;
 mod prefix;
 mod store;
 mod task;
+mod term;
 
 use task::Priority;
 
