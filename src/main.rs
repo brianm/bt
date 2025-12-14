@@ -45,6 +45,10 @@ enum Commands {
         /// Comma-separated IDs of blocking tasks
         #[arg(short, long)]
         blocked_by: Option<String>,
+
+        /// Open task in editor after creation
+        #[arg(short, long)]
+        edit: bool,
     },
 
     /// List tasks
@@ -310,6 +314,7 @@ fn main() {
                     priority,
                     tags,
                     blocked_by,
+                    edit,
                 } => {
                     let priority = priority.and_then(|p| p.parse::<Priority>().ok());
                     let tags =
@@ -317,7 +322,7 @@ fn main() {
                     let blocked_by =
                         blocked_by.map(|b| b.split(',').map(|s| s.trim().to_string()).collect());
 
-                    commands::new(&root, &title, priority, tags, blocked_by)
+                    commands::new(&root, &title, priority, tags, blocked_by, edit)
                 }
 
                 Commands::List {

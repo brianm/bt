@@ -1,8 +1,10 @@
 use crate::store::{Store, StoreError};
 use crate::task::{Priority, Status, Task};
+use chrono::Utc;
 use colored::*;
 use std::io::{self, IsTerminal, Read};
 use std::path::Path;
+use std::process::Command;
 
 /// Read description from stdin if it's not a TTY (i.e., piped input)
 fn read_stdin_description() -> Option<String> {
@@ -21,6 +23,7 @@ pub fn new(
     priority: Option<Priority>,
     tags: Option<Vec<String>>,
     blocked_by: Option<Vec<String>>,
+    edit: bool,
 ) -> Result<(), StoreError> {
     let store = Store::open(path)?;
     let author = store.get_author();
@@ -71,6 +74,25 @@ pub fn new(
         "info:".blue(),
         task_path.display()
     );
+
+    // Open editor if requested
+    if edit {
+        let editor = std::env::var("EDITOR").unwrap_or_else(|_| "vi".to_string());
+
+        let status = Command::new(&editor)
+            .arg(&task_path)
+            .status()
+            .map_err(|e| StoreError::Parse(format!("Failed to launch editor: {}", e)))?;
+
+        if !status.success() {
+            return Err(StoreError::Parse("Editor exited with error".to_string()));
+        }
+
+        // Update the 'updated' timestamp after editing
+        let mut task = store.load(&task_path)?;
+        task.frontmatter.updated = Utc::now();
+        store.save(&task, &task_path)?;
+    }
 
     Ok(())
 }
