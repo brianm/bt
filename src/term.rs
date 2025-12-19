@@ -38,11 +38,6 @@ fn strip_ansi(s: &str) -> String {
     result
 }
 
-/// Calculate display width of a string (Unicode-aware, ignores ANSI codes).
-pub fn display_width(s: &str) -> usize {
-    strip_ansi(s).width()
-}
-
 /// Truncate a string to fit within max_width display columns.
 /// Appends "..." if truncated. Handles Unicode and ANSI codes properly.
 ///
@@ -98,11 +93,6 @@ impl LineFormatter {
         Self { max_width }
     }
 
-    /// Get the effective max width, if any.
-    pub fn max_width(&self) -> Option<usize> {
-        self.max_width
-    }
-
     /// Calculate available width after accounting for a fixed-width prefix.
     /// Returns None if no truncation should be performed or if prefix consumes all space.
     pub fn available_width(&self, prefix_width: usize) -> Option<usize> {
@@ -143,19 +133,19 @@ mod tests {
     }
 
     #[test]
-    fn test_display_width_ascii() {
-        assert_eq!(display_width("hello"), 5);
+    fn test_strip_ansi_width_ascii() {
+        assert_eq!(strip_ansi("hello").width(), 5);
     }
 
     #[test]
-    fn test_display_width_with_ansi() {
-        assert_eq!(display_width("\x1b[31mhello\x1b[0m"), 5);
+    fn test_strip_ansi_width_with_ansi() {
+        assert_eq!(strip_ansi("\x1b[31mhello\x1b[0m").width(), 5);
     }
 
     #[test]
-    fn test_display_width_unicode() {
+    fn test_strip_ansi_width_unicode() {
         // CJK characters are typically 2 columns wide
-        assert_eq!(display_width("日本"), 4);
+        assert_eq!(strip_ansi("日本").width(), 4);
     }
 
     #[test]
