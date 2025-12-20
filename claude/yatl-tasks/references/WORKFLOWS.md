@@ -1,4 +1,4 @@
-# bt Workflows
+# yatl Workflows
 
 Step-by-step workflows with checklists for common scenarios.
 
@@ -10,9 +10,9 @@ Run this checklist when starting a session in a project with `.tasks/`:
 
 ```
 Session Start Checklist:
-- [ ] bt next                           # Get suggested task (highest priority ready)
-- [ ] bt list --status in-progress      # Check active work
-- [ ] bt context <id>                   # Full context for active/suggested task
+- [ ] yatl next                           # Get suggested task (highest priority ready)
+- [ ] yatl list --status in-progress      # Check active work
+- [ ] yatl context <id>                   # Full context for active/suggested task
 - [ ] Report to user what's available
 - [ ] Ask user what to work on (or suggest based on priority)
 ```
@@ -20,14 +20,14 @@ Session Start Checklist:
 ### Example Session Start
 
 ```bash
-$ bt next
+$ yatl next
 a1b2  high  Implement JWT authentication
     Users need secure authentication for the API
 
-$ bt list --status in-progress
+$ yatl list --status in-progress
 e5f6  high  Fix login bug with special characters
 
-$ bt context e5f6
+$ yatl context e5f6
 === Task ===
 ID: e5f6
 Title: Fix login bug with special characters
@@ -60,7 +60,7 @@ Session End Checklist:
 ### Log Entry Template
 
 ```bash
-bt log <task-id> "COMPLETED: [specific deliverables]
+yatl log <task-id> "COMPLETED: [specific deliverables]
 IN PROGRESS: [current state]
 KEY DECISIONS: [why, not just what]
 BLOCKERS: [what's preventing progress, if any]
@@ -70,7 +70,7 @@ NEXT: [immediate next step]"
 ### Example Session End
 
 ```bash
-bt log a1b2 "COMPLETED: JWT token generation and validation.
+yatl log a1b2 "COMPLETED: JWT token generation and validation.
 KEY DECISION: Using RS256 for asymmetric signing - enables key rotation.
 IN PROGRESS: Refresh token implementation.
 NEXT: Add token refresh endpoint, then rate limiting."
@@ -89,7 +89,7 @@ NEXT: Add token refresh endpoint, then rate limiting."
 
 ```
 Pre-Compaction Checklist:
-- [ ] Identify all active work (bt list --status in-progress)
+- [ ] Identify all active work (yatl list --status in-progress)
 - [ ] Add detailed log entry to each active task
 - [ ] Verify logs are self-explanatory without conversation context
 - [ ] Any discovered work captured as new tasks
@@ -102,8 +102,8 @@ When starting fresh after compaction:
 
 ```
 Post-Compaction Checklist:
-- [ ] bt list --status in-progress      # Find where we left off
-- [ ] bt show <task-id>                 # Read log for context
+- [ ] yatl list --status in-progress      # Find where we left off
+- [ ] yatl show <task-id>                 # Read log for context
 - [ ] Reconstruct understanding from log entries
 - [ ] Create TodoWrite items for immediate next steps
 - [ ] Continue work
@@ -146,14 +146,14 @@ While working on `a1b2` (JWT auth), you discover a bug:
 
 ```bash
 # Create the bug task
-bt new "Bug: special characters in password cause login failure" \
+yatl new "Bug: special characters in password cause login failure" \
     --priority high --tags bug,auth
 
 # If it blocks current work:
-bt block a1b2 <new-bug-id>
+yatl block a1b2 <new-bug-id>
 
 # If deferrable, just log it:
-bt log a1b2 "Discovered: special chars bug (task xyz). Deferring - not blocking JWT work."
+yatl log a1b2 "Discovered: special chars bug (task xyz). Deferring - not blocking JWT work."
 ```
 
 ---
@@ -168,8 +168,8 @@ For multi-step work where order matters:
 Dependency Planning:
 1. [ ] Create all tasks first
 2. [ ] Identify blocking relationships
-3. [ ] Add blockers: bt block <blocked> <blocker>
-4. [ ] Verify with bt ready (should show only unblocked work)
+3. [ ] Add blockers: yatl block <blocked> <blocker>
+4. [ ] Verify with yatl ready (should show only unblocked work)
 5. [ ] Work in dependency order
 ```
 
@@ -177,31 +177,31 @@ Dependency Planning:
 
 ```bash
 # Create tasks
-bt new "Set up OAuth credentials" --priority high    # -> a1b2
-bt new "Implement authorization flow" --priority high  # -> c3d4
-bt new "Add token refresh" --priority medium          # -> e5f6
-bt new "Write OAuth tests" --priority medium          # -> g7h8
+yatl new "Set up OAuth credentials" --priority high    # -> a1b2
+yatl new "Implement authorization flow" --priority high  # -> c3d4
+yatl new "Add token refresh" --priority medium          # -> e5f6
+yatl new "Write OAuth tests" --priority medium          # -> g7h8
 
 # Set up dependencies
-bt block c3d4 a1b2    # Auth flow blocked by credentials
-bt block e5f6 c3d4    # Token refresh blocked by auth flow
-bt block g7h8 e5f6    # Tests blocked by token refresh
+yatl block c3d4 a1b2    # Auth flow blocked by credentials
+yatl block e5f6 c3d4    # Token refresh blocked by auth flow
+yatl block g7h8 e5f6    # Tests blocked by token refresh
 
 # Verify
-bt ready              # Should only show a1b2
+yatl ready              # Should only show a1b2
 ```
 
 ### Working Through Dependencies
 
 ```bash
 # Start with what's ready
-bt ready              # Shows a1b2
-bt start a1b2
+yatl ready              # Shows a1b2
+yatl start a1b2
 # ... do work ...
-bt close a1b2 --reason "OAuth credentials configured"
+yatl close a1b2 --reason "OAuth credentials configured"
 
-bt ready              # Now shows c3d4 (auto-unblocked!)
-bt start c3d4
+yatl ready              # Now shows c3d4 (auto-unblocked!)
+yatl start c3d4
 # ... continue ...
 ```
 
@@ -224,18 +224,18 @@ Current task cannot proceed without fixing the side quest.
 
 ```bash
 # Create side quest
-bt new "Fix: database connection timeout" --priority high --tags bug
+yatl new "Fix: database connection timeout" --priority high --tags bug
 
 # Block current work
-bt block <current-task> <side-quest>
+yatl block <current-task> <side-quest>
 
 # Work on side quest
-bt start <side-quest>
+yatl start <side-quest>
 # ... fix it ...
-bt close <side-quest> --reason "Fixed timeout with connection pooling"
+yatl close <side-quest> --reason "Fixed timeout with connection pooling"
 
 # Current task auto-unblocks, continue
-bt start <current-task>
+yatl start <current-task>
 ```
 
 ### Pattern B: Deferrable Side Quest
@@ -244,10 +244,10 @@ Can note it and continue with current work.
 
 ```bash
 # Create side quest for later
-bt new "Refactor: auth module could use cleanup" --priority low --tags refactor
+yatl new "Refactor: auth module could use cleanup" --priority low --tags refactor
 
 # Log it in current task
-bt log <current-task> "Discovered potential refactor (task xyz). Not blocking, continuing."
+yatl log <current-task> "Discovered potential refactor (task xyz). Not blocking, continuing."
 
 # Continue current work
 ```
@@ -260,23 +260,23 @@ bt log <current-task> "Discovered potential refactor (task xyz). Not blocking, c
 
 ```
 Project Resume Checklist:
-- [ ] bt activity -n 20                 # What happened recently?
-- [ ] bt list --status in-progress      # Any abandoned work?
-- [ ] bt next                           # What's suggested?
-- [ ] bt context <id>                   # Full context for target task
+- [ ] yatl activity -n 20                 # What happened recently?
+- [ ] yatl list --status in-progress      # Any abandoned work?
+- [ ] yatl next                           # What's suggested?
+- [ ] yatl context <id>                   # Full context for target task
 - [ ] Discuss with user what to prioritize
 ```
 
 ### Example Resume
 
 ```bash
-$ bt activity -n 5
+$ yatl activity -n 5
 # See recent activity across all tasks
 
-$ bt list --status in-progress
+$ yatl list --status in-progress
 e5f6 high Fix login bug
 
-$ bt context e5f6
+$ yatl context e5f6
 === Task ===
 ID: e5f6
 Title: Fix login bug with special characters
@@ -301,22 +301,22 @@ Users cannot log in when password contains special chars...
 
 ## Integration with TodoWrite
 
-### Pattern: Long-term bt + Short-term TodoWrite
+### Pattern: Long-term yatl + Short-term TodoWrite
 
 ```
 Start of Session:
-1. [ ] Read bt task log for context
+1. [ ] Read yatl task log for context
 2. [ ] Create TodoWrite items for immediate steps
 3. [ ] Work through TodoWrite items
-4. [ ] At milestones, update bt log
-5. [ ] At session end, TodoWrite disappears, bt persists
+4. [ ] At milestones, update yatl log
+5. [ ] At session end, TodoWrite disappears, yatl persists
 ```
 
 ### Example
 
-**bt task (persistent):**
+**yatl task (persistent):**
 ```bash
-bt show a1b2
+yatl show a1b2
 # Shows log with previous session context
 ```
 
@@ -336,7 +336,7 @@ bt show a1b2
 
 **At milestone:**
 ```bash
-bt log a1b2 "COMPLETED: Password validation regex updated, tests passing.
+yatl log a1b2 "COMPLETED: Password validation regex updated, tests passing.
 IN PROGRESS: Updating error messages for clarity.
 NEXT: Final review, then close."
 ```
@@ -347,20 +347,20 @@ NEXT: Final review, then close."
 
 | Scenario | Commands |
 |----------|----------|
-| What should I work on? | `bt next` |
-| What can I work on? | `bt ready` |
-| What's in progress? | `bt list --status in-progress` |
-| Full task context | `bt context <id>` |
-| Search tasks | `bt list --search "query" --body` |
-| Filter by tag | `bt list --tag bug -n 5` |
-| Start working | `bt start <id>` |
-| Add progress note | `bt log <id> "..."` |
-| Finish task | `bt close <id> --reason "..."` |
-| Finish multiple | `bt close id1 id2 id3 --reason "..."` |
-| Found a bug | `bt new "Bug: ..." --priority high --tags bug` |
-| Task A needs B first | `bt block A B` |
-| View dependencies | `bt tree` |
-| Recent activity | `bt activity -n 10` |
-| Resume after break | `bt next` + `bt context <id>` |
-| Batch create tasks | `bt import tasks.yaml` |
-| JSON output | `bt list --json` or `bt show <id> --json` |
+| What should I work on? | `yatl next` |
+| What can I work on? | `yatl ready` |
+| What's in progress? | `yatl list --status in-progress` |
+| Full task context | `yatl context <id>` |
+| Search tasks | `yatl list --search "query" --body` |
+| Filter by tag | `yatl list --tag bug -n 5` |
+| Start working | `yatl start <id>` |
+| Add progress note | `yatl log <id> "..."` |
+| Finish task | `yatl close <id> --reason "..."` |
+| Finish multiple | `yatl close id1 id2 id3 --reason "..."` |
+| Found a bug | `yatl new "Bug: ..." --priority high --tags bug` |
+| Task A needs B first | `yatl block A B` |
+| View dependencies | `yatl tree` |
+| Recent activity | `yatl activity -n 10` |
+| Resume after break | `yatl next` + `yatl context <id>` |
+| Batch create tasks | `yatl import tasks.yaml` |
+| JSON output | `yatl list --json` or `yatl show <id> --json` |

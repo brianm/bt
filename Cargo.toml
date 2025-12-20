@@ -1,10 +1,10 @@
 [package]
-name = "bt"
+name = "yatl"
 version = "0.4.2"
 edition = "2021"
-description = "Brian's Tasks - a minimal, file-based task tracker"
+description = "Yet Another Task List - a minimal, file-based task tracker"
 license = "Apache-2.0"
-repository = "https://github.com/brianm/bt"
+repository = "https://github.com/brianm/yatl"
 
 [dependencies]
 clap = { version = "4", features = ["derive"] }

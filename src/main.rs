@@ -17,8 +17,8 @@ mod term;
 use task::Priority;
 
 #[derive(Parser)]
-#[command(name = "bt")]
-#[command(about = "Brian's Tasks - a minimal, file-based task tracker")]
+#[command(name = "yatl")]
+#[command(about = "Yet Another Task List - a minimal, file-based task tracker")]
 #[command(version)]
 struct Cli {
     #[command(subcommand)]
@@ -253,7 +253,7 @@ fn find_tasks_root(start: &Path) -> Result<PathBuf, String> {
         for marker in VCS_MARKERS {
             if current.join(marker).exists() {
                 return Err(format!(
-                    "Not a bt-enabled directory (found {} but no .tasks). Run 'bt init' first.",
+                    "Not a yatl-enabled directory (found {} but no .tasks). Run 'yatl init' first.",
                     marker
                 ));
             }
@@ -262,7 +262,7 @@ fn find_tasks_root(start: &Path) -> Result<PathBuf, String> {
         // Try to move to parent
         let parent = match current.parent() {
             Some(p) if !p.as_os_str().is_empty() => p.to_path_buf(),
-            _ => return Err("Not a bt-enabled directory. Run 'bt init' first.".to_string()),
+            _ => return Err("Not a yatl-enabled directory. Run 'yatl init' first.".to_string()),
         };
 
         // Check if we can access the parent (permission boundary)
@@ -271,17 +271,17 @@ fn find_tasks_root(start: &Path) -> Result<PathBuf, String> {
             if let Ok(meta) = parent.metadata() {
                 // Check execute permission (needed to traverse into directory)
                 if meta.mode() & 0o111 == 0 {
-                    return Err("Not a bt-enabled directory. Run 'bt init' first.".to_string());
+                    return Err("Not a yatl-enabled directory. Run 'yatl init' first.".to_string());
                 }
             } else {
-                return Err("Not a bt-enabled directory. Run 'bt init' first.".to_string());
+                return Err("Not a yatl-enabled directory. Run 'yatl init' first.".to_string());
             }
         }
 
         #[cfg(not(unix))]
         {
             if parent.metadata().is_err() {
-                return Err("Not a bt-enabled directory. Run 'bt init' first.".to_string());
+                return Err("Not a yatl-enabled directory. Run 'yatl init' first.".to_string());
             }
         }
 

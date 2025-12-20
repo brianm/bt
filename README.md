@@ -1,6 +1,6 @@
-# bt
+# yatl
 
-Brian's Tasks - a minimal, file-based task tracker that lives in your git repo.
+Yet Another Task List - a minimal, file-based task tracker that lives in your git repo.
 
 ## Why?
 
@@ -14,30 +14,30 @@ Brian's Tasks - a minimal, file-based task tracker that lives in your git repo.
 
 ```bash
 # Install with homebrew
-brew install brianm/tools/bt
+brew install brianm/tools/yatl
 
 # Or build and "install" from checked out source
 cargo build --release
-cp target/release/bt ~/.bin/ # or wherever
+cp target/release/yatl ~/.bin/ # or wherever
 
 # Initialize in your project
 cd your-project
-bt init
+yatl init
 
 # Create a task
-bt new "Fix login bug" --priority high --tags bug,auth
+yatl new "Fix login bug" --priority high --tags bug,auth
 
 # List tasks
-bt list
+yatl list
 
 # Start working on it
-bt start a1b2
+yatl start a1b2
 
 # See what's ready to work on
-bt ready
+yatl ready
 
 # Close a task
-bt close bt-a1b2 --reason "Fixed in commit abc123"
+yatl close a1b2 --reason "Fixed in commit abc123"
 ```
 
 ## Task Format
@@ -83,19 +83,19 @@ Found the root cause in legacy auth path.
 
 | Command | Description |
 |---------|-------------|
-| `bt init` | Initialize task tracking |
-| `bt new <title>` | Create a new task |
-| `bt list` | List active tasks (open, in-progress, blocked) |
-| `bt list --all` | List all tasks including closed |
-| `bt show <id>` | Show task details |
-| `bt edit <id>` | Edit task in $EDITOR |
-| `bt start <id>` | Start working (open → in-progress) |
-| `bt stop <id>` | Stop working (in-progress → open) |
-| `bt close <id>` | Close a task |
-| `bt reopen <id>` | Reopen a closed task |
-| `bt ready` | List tasks ready to work on (no blockers) |
-| `bt log <id> <msg>` | Add a log entry |
-| `bt block <id> <by>` | Add a blocker dependency |
+| `yatl init` | Initialize task tracking |
+| `yatl new <title>` | Create a new task |
+| `yatl list` | List active tasks (open, in-progress, blocked) |
+| `yatl list --all` | List all tasks including closed |
+| `yatl show <id>` | Show task details |
+| `yatl edit <id>` | Edit task in $EDITOR |
+| `yatl start <id>` | Start working (open → in-progress) |
+| `yatl stop <id>` | Stop working (in-progress → open) |
+| `yatl close <id>` | Close a task |
+| `yatl reopen <id>` | Reopen a closed task |
+| `yatl ready` | List tasks ready to work on (no blockers) |
+| `yatl log <id> <msg>` | Add a log entry |
+| `yatl block <id> <by>` | Add a blocker dependency |
 
 ### ID Matching
 
@@ -105,20 +105,20 @@ Task IDs use a short hash format like `a1b2c3d4`. You can reference tasks by:
 
 ## Dependency Tracking
 
-When you block a task (`bt block A B`), task A is automatically moved to `blocked/`. When task B is closed, task A is automatically moved back to `open/`.
+When you block a task (`yatl block A B`), task A is automatically moved to `blocked/`. When task B is closed, task A is automatically moved back to `open/`.
 
 ```bash
 # Create two tasks
-bt new "Build feature"    # bt-a1b2
-bt new "Write tests"      # bt-c3d4
+yatl new "Build feature"    # a1b2c3d4
+yatl new "Write tests"      # c3d4e5f6
 
 # Block tests on feature
-bt block c3d4 a1b2
-# → bt-c3d4 moves to blocked/
+yatl block c3d4 a1b2
+# → c3d4e5f6 moves to blocked/
 
 # Close the feature
-bt close a1b2
-# → bt-c3d4 automatically moves back to open/
+yatl close a1b2
+# → c3d4e5f6 automatically moves back to open/
 ```
 
 ## Workflow with Git
@@ -127,8 +127,8 @@ Tasks live in your branch and merge when your code merges:
 
 ```bash
 # On your feature branch
-bt new "Implement OAuth"
-bt start a1b2
+yatl new "Implement OAuth"
+yatl start a1b2
 # ... work on feature ...
 git add .tasks/
 git commit -m "feat: oauth support"
@@ -142,23 +142,23 @@ Agents can work with tasks directly:
 
 ```bash
 # List ready tasks
-bt ready
+yatl ready
 
 # Create a task
-bt new "Fix the bug I found"
+yatl new "Fix the bug I found"
 
 # Add a log entry
-bt log a1b2 "Investigated, root cause is in auth.py"
+yatl log a1b2 "Investigated, root cause is in auth.py"
 
 # Close when done
-bt close a1b2 --reason "Fixed in this commit"
+yatl close a1b2 --reason "Fixed in this commit"
 ```
 
 Or agents can read/write the files directly - the format is simple YAML + markdown. Status is determined by which directory the file is in.
 
 ## Thanks
 
-I cribbed (stole) mightily from [beads](https://github.com/steveyegge/beads) for the AI integration. Beads is way more mature, probably better developed, certainly has a larger community, and is probably all around better if you are focused on the task-tracker-for-AI parts. I like `bt` though, because it is designed for me :-)
+I cribbed (stole) mightily from [beads](https://github.com/steveyegge/beads) for the AI integration. Beads is way more mature, probably better developed, certainly has a larger community, and is probably all around better if you are focused on the task-tracker-for-AI parts. I like `yatl` though, because it is designed for me :-)
 
 ## Building
 

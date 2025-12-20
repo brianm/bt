@@ -9,7 +9,7 @@ const TASKS_DIR: &str = ".tasks";
 
 #[derive(Error, Debug)]
 pub enum StoreError {
-    #[error("Not a bt-enabled directory. Run 'bt init' first.")]
+    #[error("Not a yatl-enabled directory. Run 'yatl init' first.")]
     NotInitialized,
 
     #[error("Task directory already exists")]

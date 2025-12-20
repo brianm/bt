@@ -74,23 +74,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "812e12b5285cc515a9c72a5c1d3b6d46a19dac5acfef5265968c166106e31dd3"
 
 [[package]]
-name = "bt"
-version = "0.4.2"
-dependencies = [
- "chrono",
- "clap",
- "colored",
- "glob",
- "rand",
- "serde",
- "serde_json",
- "serde_yaml",
- "terminal_size",
- "thiserror",
- "unicode-width",
-]
-
-[[package]]
 name = "bumpalo"
 version = "3.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -826,6 +809,23 @@ name = "windows_x86_64_msvc"
 version = "0.53.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d6bbff5f0aada427a1e5a6da5f1f98158182f26556f345ac9e04d36d0ebed650"
+
+[[package]]
+name = "yatl"
+version = "0.4.2"
+dependencies = [
+ "chrono",
+ "clap",
+ "colored",
+ "glob",
+ "rand",
+ "serde",
+ "serde_json",
+ "serde_yaml",
+ "terminal_size",
+ "thiserror",
+ "unicode-width",
+]
 
 [[package]]
 name = "zerocopy"

@@ -1,4 +1,4 @@
-# bt Specification
+# yatl Specification
 
 Version: 0.1.0
 
@@ -13,15 +13,15 @@ A minimal, file-based task tracking system designed for use with git repositorie
   config.yaml              # Optional: project-level configuration
   .gitattributes           # Git merge strategy configuration
   open/                    # Ready to work on
-    bt-a1b2.md
+    a1b2c3d4.md
   in-progress/             # Currently being worked on
-    bt-c3d4.md
+    c3d4e5f6.md
   blocked/                 # Waiting on dependencies
-    bt-e5f6.md
+    e5f6g7h8.md
   closed/                  # Completed successfully
-    bt-f7g8.md
+    f7g8h9i0.md
   cancelled/               # Will not be done
-    bt-h9i0.md
+    h9i0j1k2.md
 ```
 
 **Status is determined by directory location**, not stored in the file. Tasks move between directories when their status changes. This makes `find .tasks/open -name '*.md'` a trivial way to list active work.
@@ -32,25 +32,20 @@ A minimal, file-based task tracking system designed for use with git repositorie
 {id}.md
 ```
 
-Where `{id}` is a short hash identifier like `bt-a1b2` (prefix "bt-" followed by 4 hex characters).
+Where `{id}` is an 8-character Crockford base32 identifier like `a1b2c3d4`.
 
-IDs are generated from a BLAKE3 hash of:
-- Creation timestamp
-- Task title
-- Random bytes
-
-This ensures uniqueness even with concurrent task creation.
+IDs are generated from random bytes to ensure uniqueness even with concurrent task creation.
 
 Examples:
-- `bt-a1b2.md`
-- `bt-c3d4.md`
+- `a1b2c3d4.md`
+- `c3d4e5f6.md`
 
 ## Task File Format
 
 ```markdown
 ---
 title: Fix login bug with special characters
-id: bt-a1b2
+id: a1b2c3d4
 created: 2025-11-25T10:30:45Z
 updated: 2025-11-25T14:22:00Z
 author: brian
@@ -98,7 +93,7 @@ Fixed in commit abc1234. Need to add tests before closing.
 | Field | Type | Description |
 |-------|------|-------------|
 | `title` | string | Human-readable title |
-| `id` | string | Unique identifier (bt-XXXX format) |
+| `id` | string | Unique 8-character Crockford base32 identifier |
 | `created` | ISO 8601 | Creation timestamp in UTC |
 
 **Note**: Status is NOT stored in the file. It is derived from the directory the file is in.
@@ -137,7 +132,7 @@ Status is determined by which directory the task file is in:
 
 ### Automatic Status Changes
 
-When you add a blocker to a task (`bt block A B`), task A is automatically moved to `blocked/`.
+When you add a blocker to a task (`yatl block A B`), task A is automatically moved to `blocked/`.
 
 When a blocking task is closed, all tasks it was blocking are checked - if they have no remaining blockers, they are automatically moved back to `open/`.
 
@@ -162,11 +157,11 @@ List of task IDs that must be `closed` or `cancelled` before this task can proce
 
 ```yaml
 blocked_by:
-  - bt-a1b2
-  - bt-c3d4
+  - a1b2c3d4
+  - c3d4e5f6
 ```
 
-When you add a blocker using `bt block`, the task is automatically moved to the `blocked/` directory.
+When you add a blocker using `yatl block`, the task is automatically moved to the `blocked/` directory.
 
 ### Determining "Ready" Tasks
 
@@ -187,7 +182,7 @@ default_author: brian
 
 ### .gitattributes
 
-Created automatically by `bt init`:
+Created automatically by `yatl init`:
 
 ```gitattributes
 *.md merge=union
@@ -198,18 +193,18 @@ The `merge=union` strategy concatenates both sides for text conflicts, which wor
 ### Commit Message Convention
 
 ```
-bt: short description
+yatl: short description
 
-bt(close): fix login bug
-bt(new): add oauth support
-bt(update): reprioritize auth work
+yatl(close): fix login bug
+yatl(new): add oauth support
+yatl(update): reprioritize auth work
 ```
 
 ## Agent Integration
 
 Agents can work with tasks by:
 
-1. **CLI**: Use `bt` commands directly
+1. **CLI**: Use `yatl` commands directly
 2. **Reading**: Parse YAML frontmatter + markdown body
 3. **Creating**: Generate file with proper naming and format
 4. **Updating**: Modify frontmatter fields, append to log
@@ -234,8 +229,8 @@ Note: Tasks in `blocked/` are not considered ready. The automatic blocking syste
 
 ## Comparison with Alternatives
 
-| Feature | bt | Beads | git-bug |
-|---------|-----------|-------|---------|
+| Feature | yatl | Beads | git-bug |
+|---------|------|-------|---------|
 | Storage | Markdown files | JSONL | Git objects |
 | Status | Directory-based | Field-based | Field-based |
 | Dependencies | Yes (blocked_by) | Yes (4 types) | No |

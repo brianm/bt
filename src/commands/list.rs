@@ -44,7 +44,7 @@ pub fn list(
     };
 
     // Resolve shortest unique prefixes across ALL tasks (including closed/cancelled)
-    // This ensures displayed prefixes work with `bt edit`, which searches all directories
+    // This ensures displayed prefixes work with `yatl edit`, which searches all directories
     let resolver = PrefixResolver::new(&store)?;
 
     // Auto-detect terminal width for line truncation (disabled for JSON output)

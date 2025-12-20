@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-`bt` (Brian's Tasks) is a minimal, file-based task tracker that lives in git repositories. Written in Rust, it stores tasks as human-readable markdown files with YAML frontmatter.
+`yatl` (Yet Another Task List) is a minimal, file-based task tracker that lives in git repositories. Written in Rust, it stores tasks as human-readable markdown files with YAML frontmatter.
 
 ## Development
 
@@ -24,7 +24,7 @@ cargo run -- list        # List open tasks
 ```
 
 **Environment variables:**
-- `EDITOR` - Editor for `bt edit` command
+- `EDITOR` - Editor for `yatl edit` command
 
 ## Architecture
 
@@ -85,7 +85,7 @@ Markdown with YAML frontmatter:
 - **Directory-based status**: Status is determined by directory (open/, in-progress/, blocked/, closed/, cancelled/)
 - **Automatic blocking**: Tasks move to blocked/ when blockers added, back to open/ when resolved
 - **Union merge**: `.gitattributes` configures `merge=union` for log sections
-- **Prefix matching**: `bt show a1b2` finds tasks starting with `a1b2`
+- **Prefix matching**: `yatl show a1b2` finds tasks starting with `a1b2`
 - **Task hierarchies**: Parent/child relationships via `parent` and `children` fields
 
 ### Dependencies

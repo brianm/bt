@@ -23,7 +23,7 @@ pub fn activity(path: &Path, limit: usize, all: bool) -> Result<(), StoreError> 
     };
 
     // Resolve shortest unique prefixes across ALL tasks (including closed/cancelled)
-    // This ensures displayed prefixes work with `bt edit`, which searches all directories
+    // This ensures displayed prefixes work with `yatl edit`, which searches all directories
     let resolver = PrefixResolver::new(&store)?;
 
     let mut entries: Vec<LogEntry> = Vec::new();

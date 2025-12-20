@@ -35,7 +35,7 @@ pub fn next(path: &Path) -> Result<(), StoreError> {
     let (_, task) = &tasks[0];
 
     // Resolve shortest unique prefix across ALL tasks (including closed/cancelled)
-    // This ensures displayed prefix works with `bt edit`, which searches all directories
+    // This ensures displayed prefix works with `yatl edit`, which searches all directories
     let resolver = PrefixResolver::new(&store)?;
     let short_id = resolver.shortest_prefix(task.id());
 

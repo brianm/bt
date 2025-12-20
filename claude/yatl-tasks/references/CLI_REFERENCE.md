@@ -1,39 +1,39 @@
-# bt CLI Reference
+# yatl CLI Reference
 
-Complete command reference for bt (Brian's Tasks).
+Complete command reference for yatl (Yet Another Task List).
 
 ## Command Overview
 
 | Command | Description |
 |---------|-------------|
-| `bt init` | Initialize task tracking in current directory |
-| `bt new` | Create a new task |
-| `bt import` | Batch create tasks from YAML file |
-| `bt list` / `bt ls` | List tasks with filtering |
-| `bt show` | Display task details |
-| `bt context` | Show full context for working on a task |
-| `bt next` | Suggest highest priority ready task |
-| `bt activity` | Show recent activity across all tasks |
-| `bt tree` | Show dependency tree of active tasks |
-| `bt edit` | Edit task in $EDITOR |
-| `bt start` | Begin work on task(s) (open -> in-progress) |
-| `bt stop` | Pause work on task(s) (in-progress -> open) |
-| `bt close` | Complete task(s) (-> closed) |
-| `bt reopen` | Revive closed task(s) (closed -> open) |
-| `bt ready` | List tasks ready to work on (no blockers) |
-| `bt log` | Add entry to task log |
-| `bt block` | Add blocker dependency |
-| `bt unblock` | Remove blocker dependency |
-| `bt update` | Programmatic field updates |
+| `yatl init` | Initialize task tracking in current directory |
+| `yatl new` | Create a new task |
+| `yatl import` | Batch create tasks from YAML file |
+| `yatl list` / `yatl ls` | List tasks with filtering |
+| `yatl show` | Display task details |
+| `yatl context` | Show full context for working on a task |
+| `yatl next` | Suggest highest priority ready task |
+| `yatl activity` | Show recent activity across all tasks |
+| `yatl tree` | Show dependency tree of active tasks |
+| `yatl edit` | Edit task in $EDITOR |
+| `yatl start` | Begin work on task(s) (open -> in-progress) |
+| `yatl stop` | Pause work on task(s) (in-progress -> open) |
+| `yatl close` | Complete task(s) (-> closed) |
+| `yatl reopen` | Revive closed task(s) (closed -> open) |
+| `yatl ready` | List tasks ready to work on (no blockers) |
+| `yatl log` | Add entry to task log |
+| `yatl block` | Add blocker dependency |
+| `yatl unblock` | Remove blocker dependency |
+| `yatl update` | Programmatic field updates |
 
 ---
 
-## bt init
+## yatl init
 
 Initialize task tracking in current directory.
 
 ```bash
-bt init
+yatl init
 ```
 
 Creates:
@@ -44,13 +44,13 @@ Creates:
 
 ---
 
-## bt new
+## yatl new
 
 Create a new task.
 
 ```bash
-bt new "Task title"
-bt new "Task title" [OPTIONS]
+yatl new "Task title"
+yatl new "Task title" [OPTIONS]
 ```
 
 **Options:**
@@ -65,28 +65,28 @@ bt new "Task title" [OPTIONS]
 
 ```bash
 # Simple task
-bt new "Implement OAuth"
+yatl new "Implement OAuth"
 
 # With priority and tags
-bt new "Fix login bug" --priority high --tags bug,auth
+yatl new "Fix login bug" --priority high --tags bug,auth
 
 # With blocker
-bt new "Write tests" --blocked-by a1b2
+yatl new "Write tests" --blocked-by a1b2
 
 # With piped description (body)
-echo "Users cannot log in with special chars in password" | bt new "Fix login bug"
+echo "Users cannot log in with special chars in password" | yatl new "Fix login bug"
 ```
 
 **Output:** Task ID and file path
 
 ---
 
-## bt import
+## yatl import
 
 Batch create tasks from a YAML file with dependencies.
 
 ```bash
-bt import <file>
+yatl import <file>
 ```
 
 **YAML format:**
@@ -121,13 +121,13 @@ bt import <file>
 
 ---
 
-## bt list / bt ls
+## yatl list / yatl ls
 
 List tasks with optional filtering.
 
 ```bash
-bt list [OPTIONS]
-bt ls [OPTIONS]
+yatl list [OPTIONS]
+yatl ls [OPTIONS]
 ```
 
 **Options:**
@@ -148,37 +148,37 @@ bt ls [OPTIONS]
 
 ```bash
 # Active tasks (open, in-progress, blocked)
-bt list
+yatl list
 
 # All tasks including closed
-bt list --all
+yatl list --all
 
 # Only open tasks
-bt list --status open
+yatl list --status open
 
 # High priority tasks
-bt list --priority high
+yatl list --priority high
 
 # Filter by tag
-bt list --tag bug
+yatl list --tag bug
 
 # Search in title and body
-bt list --search "authentication"
+yatl list --search "authentication"
 
 # Limit output size
-bt list -n 5
+yatl list -n 5
 
 # Show body preview
-bt list --body
+yatl list --body
 
 # JSON output for programmatic parsing
-bt list --json
+yatl list --json
 
 # Combined: search bugs, limit to 3, show body
-bt list --tag bug --search "login" -n 3 --body
+yatl list --tag bug --search "login" -n 3 --body
 
 # Verbose format
-bt list --long
+yatl list --long
 ```
 
 **Output:** ID (shortest unique prefix), status, priority, title
@@ -204,12 +204,12 @@ bt list --long
 
 ---
 
-## bt show
+## yatl show
 
 Display task details.
 
 ```bash
-bt show <task-id> [OPTIONS]
+yatl show <task-id> [OPTIONS]
 ```
 
 **Arguments:**
@@ -224,21 +224,21 @@ bt show <task-id> [OPTIONS]
 **Examples:**
 
 ```bash
-bt show a1b2           # Prefix matching
-bt show a1b2c3d4       # Full ID
-bt show a1b2 --json    # JSON output for parsing
+yatl show a1b2           # Prefix matching
+yatl show a1b2c3d4       # Full ID
+yatl show a1b2 --json    # JSON output for parsing
 ```
 
 **Output:** Full markdown including frontmatter, body, and log section
 
 ---
 
-## bt context
+## yatl context
 
 Show full context for working on a task. Combines task details with dependency information.
 
 ```bash
-bt context <task-id>
+yatl context <task-id>
 ```
 
 **Output includes:**
@@ -277,12 +277,12 @@ Users need secure authentication...
 
 ---
 
-## bt next
+## yatl next
 
 Suggest the highest priority ready task.
 
 ```bash
-bt next
+yatl next
 ```
 
 **Algorithm:**
@@ -293,21 +293,21 @@ bt next
 
 **Example:**
 ```bash
-$ bt next
+$ yatl next
 a1b2  high  Implement JWT authentication
     Users need secure authentication for the API
 ```
 
-**Use case:** Decide what to work on without analyzing `bt ready` output.
+**Use case:** Decide what to work on without analyzing `yatl ready` output.
 
 ---
 
-## bt activity
+## yatl activity
 
 Show recent activity across all tasks.
 
 ```bash
-bt activity [OPTIONS]
+yatl activity [OPTIONS]
 ```
 
 **Options:**
@@ -320,9 +320,9 @@ bt activity [OPTIONS]
 **Examples:**
 
 ```bash
-bt activity            # Last 10 entries from active tasks
-bt activity -n 5       # Last 5 entries
-bt activity --all      # Include closed tasks
+yatl activity            # Last 10 entries from active tasks
+yatl activity -n 5       # Last 5 entries
+yatl activity --all      # Include closed tasks
 ```
 
 **Output:** Chronological log entries from all tasks, most recent first.
@@ -340,12 +340,12 @@ bt activity --all      # Include closed tasks
 
 ---
 
-## bt tree
+## yatl tree
 
 Show dependency tree of active tasks.
 
 ```bash
-bt tree
+yatl tree
 ```
 
 Displays a visual DAG (Directed Acyclic Graph) of task dependencies:
@@ -366,24 +366,24 @@ a1b2  Set up OAuth credentials
 
 ---
 
-## bt edit
+## yatl edit
 
 Edit task in $EDITOR.
 
 ```bash
-bt edit <task-id>
+yatl edit <task-id>
 ```
 
-Opens the task markdown file in your configured editor. Changes to title, body, tags, priority are saved. Status changes should be done via `bt start`, `bt stop`, `bt close`.
+Opens the task markdown file in your configured editor. Changes to title, body, tags, priority are saved. Status changes should be done via `yatl start`, `yatl stop`, `yatl close`.
 
 ---
 
-## bt start
+## yatl start
 
 Begin work on one or more tasks.
 
 ```bash
-bt start <task-id> [task-id...]
+yatl start <task-id> [task-id...]
 ```
 
 - Moves tasks from `open/` to `in-progress/`
@@ -392,18 +392,18 @@ bt start <task-id> [task-id...]
 
 **Examples:**
 ```bash
-bt start a1b2              # Start one task
-bt start a1b2 c3d4 e5f6    # Start multiple tasks
+yatl start a1b2              # Start one task
+yatl start a1b2 c3d4 e5f6    # Start multiple tasks
 ```
 
 ---
 
-## bt stop
+## yatl stop
 
 Pause work on one or more tasks.
 
 ```bash
-bt stop <task-id> [task-id...]
+yatl stop <task-id> [task-id...]
 ```
 
 - Moves tasks from `in-progress/` to `open/`
@@ -411,18 +411,18 @@ bt stop <task-id> [task-id...]
 
 **Examples:**
 ```bash
-bt stop a1b2               # Stop one task
-bt stop a1b2 c3d4          # Stop multiple tasks
+yatl stop a1b2               # Stop one task
+yatl stop a1b2 c3d4          # Stop multiple tasks
 ```
 
 ---
 
-## bt close
+## yatl close
 
 Complete one or more tasks.
 
 ```bash
-bt close <task-id> [task-id...] [OPTIONS]
+yatl close <task-id> [task-id...] [OPTIONS]
 ```
 
 **Options:**
@@ -439,38 +439,38 @@ bt close <task-id> [task-id...] [OPTIONS]
 **Examples:**
 
 ```bash
-bt close a1b2
-bt close a1b2 --reason "Fixed in commit abc123"
-bt close a1b2 c3d4 e5f6                         # Close multiple
-bt close a1b2 c3d4 --reason "Sprint complete"   # Multiple with reason
+yatl close a1b2
+yatl close a1b2 --reason "Fixed in commit abc123"
+yatl close a1b2 c3d4 e5f6                         # Close multiple
+yatl close a1b2 c3d4 --reason "Sprint complete"   # Multiple with reason
 ```
 
 ---
 
-## bt reopen
+## yatl reopen
 
 Revive one or more closed tasks.
 
 ```bash
-bt reopen <task-id> [task-id...]
+yatl reopen <task-id> [task-id...]
 ```
 
 - Moves tasks from `closed/` to `open/`
 
 **Examples:**
 ```bash
-bt reopen a1b2              # Reopen one task
-bt reopen a1b2 c3d4 e5f6    # Reopen multiple tasks
+yatl reopen a1b2              # Reopen one task
+yatl reopen a1b2 c3d4 e5f6    # Reopen multiple tasks
 ```
 
 ---
 
-## bt ready
+## yatl ready
 
 List tasks ready to work on.
 
 ```bash
-bt ready
+yatl ready
 ```
 
 Shows only tasks that are:
@@ -481,13 +481,13 @@ This is the primary command for finding what to work on next.
 
 ---
 
-## bt log
+## yatl log
 
 Add entry to task log.
 
 ```bash
-bt log <task-id> "message"
-bt log <task-id> "line 1" "line 2" "line 3"
+yatl log <task-id> "message"
+yatl log <task-id> "line 1" "line 2" "line 3"
 ```
 
 - Appends entry to task's `## Log` section
@@ -497,8 +497,8 @@ bt log <task-id> "line 1" "line 2" "line 3"
 **Examples:**
 
 ```bash
-bt log a1b2 "Found root cause in auth.py"
-bt log a1b2 "COMPLETED: JWT validation" "NEXT: Add tests"
+yatl log a1b2 "Found root cause in auth.py"
+yatl log a1b2 "COMPLETED: JWT validation" "NEXT: Add tests"
 ```
 
 **Log format in file:**
@@ -510,12 +510,12 @@ Found root cause in auth.py
 
 ---
 
-## bt block
+## yatl block
 
 Add blocker dependency.
 
 ```bash
-bt block <task-to-block> <blocker-task>
+yatl block <task-to-block> <blocker-task>
 ```
 
 **Arguments:**
@@ -531,17 +531,17 @@ bt block <task-to-block> <blocker-task>
 
 ```bash
 # c3d4 (tests) is blocked by a1b2 (implementation)
-bt block c3d4 a1b2
+yatl block c3d4 a1b2
 ```
 
 ---
 
-## bt unblock
+## yatl unblock
 
 Remove blocker dependency.
 
 ```bash
-bt unblock <task-id> <blocker-id>
+yatl unblock <task-id> <blocker-id>
 ```
 
 **Effects:**
@@ -550,12 +550,12 @@ bt unblock <task-id> <blocker-id>
 
 ---
 
-## bt update
+## yatl update
 
 Programmatic field updates.
 
 ```bash
-bt update <task-id> [OPTIONS]
+yatl update <task-id> [OPTIONS]
 ```
 
 **Options:**
@@ -572,21 +572,21 @@ bt update <task-id> [OPTIONS]
 **Examples:**
 
 ```bash
-bt update a1b2 --title "New title"
-bt update a1b2 --priority critical
-bt update a1b2 --tags bug,urgent,auth
-bt update a1b2 --add-tag documentation
-bt update a1b2 --remove-tag old-tag
+yatl update a1b2 --title "New title"
+yatl update a1b2 --priority critical
+yatl update a1b2 --tags bug,urgent,auth
+yatl update a1b2 --add-tag documentation
+yatl update a1b2 --remove-tag old-tag
 
 # Read body from stdin
-cat description.txt | bt update a1b2 --body -
+cat description.txt | yatl update a1b2 --body -
 ```
 
 ---
 
 ## Task ID Matching
 
-bt supports prefix matching for task IDs:
+yatl supports prefix matching for task IDs:
 
 - IDs are 8-character Crockford base32 (e.g., `a1b2c3d4`)
 - Prefix matching is case-insensitive
@@ -594,9 +594,9 @@ bt supports prefix matching for task IDs:
 
 **Examples:**
 ```bash
-bt show a1b2           # Matches a1b2c3d4
-bt show A1B2           # Case-insensitive
-bt show a1b2c3d4       # Full ID always works
+yatl show a1b2           # Matches a1b2c3d4
+yatl show A1B2           # Case-insensitive
+yatl show a1b2c3d4       # Full ID always works
 ```
 
 ---
@@ -632,7 +632,7 @@ Status changes move files between directories. This is the source of truth for t
 
 | Variable | Description |
 |----------|-------------|
-| `EDITOR` | Editor for `bt edit` command |
+| `EDITOR` | Editor for `yatl edit` command |
 
 ---
 

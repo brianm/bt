@@ -1,14 +1,14 @@
-# bt vs TodoWrite: Decision Boundaries
+# yatl vs TodoWrite: Decision Boundaries
 
-Detailed decision criteria for when to use bt versus TodoWrite.
+Detailed decision criteria for when to use yatl versus TodoWrite.
 
 ## The Core Distinction
 
-**bt** = Persistent memory that survives session boundaries
+**yatl** = Persistent memory that survives session boundaries
 **TodoWrite** = Ephemeral checklist for current session only
 
 Think of it as:
-- bt = Your project's task backlog
+- yatl = Your project's task backlog
 - TodoWrite = Your notepad for the next hour
 
 ---
@@ -21,13 +21,13 @@ Think of it as:
 Is this work for THIS session only?
 ├── Yes → TodoWrite
 └── No → Will I need context after compaction?
-    ├── Yes → bt
-    └── Maybe → bt (better safe than sorry)
+    ├── Yes → yatl
+    └── Maybe → yatl (better safe than sorry)
 ```
 
 ### Detailed Criteria
 
-| Factor | Use bt | Use TodoWrite |
+| Factor | Use yatl | Use TodoWrite |
 |--------|--------|---------------|
 | **Duration** | Multi-session, days/weeks | Single session, hours |
 | **Dependencies** | Has blockers or blocks other work | Linear, no branching |
@@ -39,33 +39,33 @@ Is this work for THIS session only?
 
 ## Examples by Scenario
 
-### Use bt
+### Use yatl
 
 **Multi-session projects:**
 ```bash
-bt new "Implement OAuth authentication"
+yatl new "Implement OAuth authentication"
 # This will take multiple sessions, has many parts,
 # and you'll need context about decisions made
 ```
 
 **Work with dependencies:**
 ```bash
-bt new "Write tests for auth module"
-bt new "Refactor auth after tests pass"
-bt block refactor-id tests-id
+yatl new "Write tests for auth module"
+yatl new "Refactor auth after tests pass"
+yatl block refactor-id tests-id
 # The ordering matters and must persist
 ```
 
 **Knowledge work:**
 ```bash
-bt new "Research caching strategies for API"
+yatl new "Research caching strategies for API"
 # Fuzzy boundaries, discovery process,
 # findings need to persist
 ```
 
 **Bug tracking:**
 ```bash
-bt new "Bug: login fails with special chars" --tags bug
+yatl new "Bug: login fails with special chars" --tags bug
 # Even if quick to fix, it's a record for the project
 ```
 
@@ -107,12 +107,12 @@ Ask yourself: **"What happens when compaction occurs?"**
 - Conversation history is gone
 - No way to resume without user re-explaining
 
-### If using bt:
+### If using yatl:
 - Task file persists in `.tasks/`
 - Log entries preserve context
-- Can resume by reading `bt show <id>`
+- Can resume by reading `yatl show <id>`
 
-**Rule**: If losing context would be painful, use bt.
+**Rule**: If losing context would be painful, use yatl.
 
 ---
 
@@ -120,7 +120,7 @@ Ask yourself: **"What happens when compaction occurs?"**
 
 Ask: **"Could I resume this work in 2 weeks with zero conversation history?"**
 
-### Fails the test (needs bt):
+### Fails the test (needs yatl):
 - "Implementing the auth system" - Too many decisions to remember
 - "Researching database options" - Findings need to persist
 - "Fixing intermittent bug" - Investigation progress matters
@@ -136,9 +136,9 @@ Ask: **"Could I resume this work in 2 weeks with zero conversation history?"**
 
 Often you'll use both together:
 
-**bt for the strategic objective:**
+**yatl for the strategic objective:**
 ```bash
-bt new "Implement user authentication"
+yatl new "Implement user authentication"
 ```
 
 **TodoWrite for tactical execution:**
@@ -150,21 +150,21 @@ bt new "Implement user authentication"
 ```
 
 **Pattern:**
-1. Read bt task for context
+1. Read yatl task for context
 2. Create TodoWrite for immediate steps
 3. Work through TodoWrite
-4. Update bt log with meaningful progress
-5. TodoWrite disappears, bt persists
+4. Update yatl log with meaningful progress
+5. TodoWrite disappears, yatl persists
 
 ---
 
 ## Integration Patterns
 
-### Pattern 1: bt Task Spawns TodoWrite
+### Pattern 1: yatl Task Spawns TodoWrite
 
 Start of session:
 ```bash
-bt show a1b2
+yatl show a1b2
 # Log says: "NEXT: Implement rate limiting"
 ```
 
@@ -176,13 +176,13 @@ Create TodoWrite:
 - [ ] Update docs
 ```
 
-Work through TodoWrite, then update bt:
+Work through TodoWrite, then update yatl:
 ```bash
-bt log a1b2 "COMPLETED: Rate limiting with 100 req/min per IP.
+yatl log a1b2 "COMPLETED: Rate limiting with 100 req/min per IP.
 Added middleware, tests passing, docs updated."
 ```
 
-### Pattern 2: TodoWrite Graduates to bt
+### Pattern 2: TodoWrite Graduates to yatl
 
 Start with TodoWrite for quick task:
 ```
@@ -198,23 +198,23 @@ Discover it's more complex:
 - [ ] And there's a test that needs updating...
 ```
 
-Graduate to bt:
+Graduate to yatl:
 ```bash
-bt new "Config value change has broader impact" --tags refactor
-bt log <id> "Started as simple change. Discovered affects:
+yatl new "Config value change has broader impact" --tags refactor
+yatl log <id> "Started as simple change. Discovered affects:
 - api/handler.go
 - internal/config/defaults.go
 - tests/integration_test.go
 NEXT: Update all references, verify tests."
 ```
 
-### Pattern 3: bt for Record, TodoWrite for Speed
+### Pattern 3: yatl for Record, TodoWrite for Speed
 
-Some work deserves a bt record even if done in one session:
+Some work deserves a yatl record even if done in one session:
 
 ```bash
-# Create bt for the record
-bt new "Security: Update JWT secret rotation" --priority high --tags security
+# Create yatl for the record
+yatl new "Security: Update JWT secret rotation" --priority high --tags security
 
 # Use TodoWrite for speed
 - [ ] Generate new secrets
@@ -223,10 +223,10 @@ bt new "Security: Update JWT secret rotation" --priority high --tags security
 - [ ] Verify all services
 
 # Close with summary for project history
-bt close <id> --reason "Rotated JWT secrets across all environments. New 30-day rotation policy."
+yatl close <id> --reason "Rotated JWT secrets across all environments. New 30-day rotation policy."
 ```
 
-The bt record persists for audit trail even though work was fast.
+The yatl record persists for audit trail even though work was fast.
 
 ---
 
@@ -241,53 +241,53 @@ The bt record persists for audit trail even though work was fast.
 
 **Right:**
 ```bash
-bt new "Implement OAuth authentication"
+yatl new "Implement OAuth authentication"
 ```
 
-### Mistake 2: Using bt for Trivial Tasks
+### Mistake 2: Using yatl for Trivial Tasks
 
 **Wrong:**
 ```bash
-bt new "Update the README typo"  # Overkill
+yatl new "Update the README typo"  # Overkill
 ```
 
 **Right:**
 Just do it, or use TodoWrite if you need a reminder.
 
-### Mistake 3: Not Updating bt Logs
+### Mistake 3: Not Updating yatl Logs
 
 **Wrong:**
 ```bash
-bt start a1b2
+yatl start a1b2
 # Work for 2 hours
-bt close a1b2
+yatl close a1b2
 # No log entries - context lost!
 ```
 
 **Right:**
 ```bash
-bt start a1b2
+yatl start a1b2
 # Work for 30 min
-bt log a1b2 "Implemented token validation"
+yatl log a1b2 "Implemented token validation"
 # Work more
-bt log a1b2 "Added refresh logic"
+yatl log a1b2 "Added refresh logic"
 # Finish
-bt close a1b2 --reason "Complete with tests"
+yatl close a1b2 --reason "Complete with tests"
 ```
 
-### Mistake 4: Duplicating Between bt and TodoWrite
+### Mistake 4: Duplicating Between yatl and TodoWrite
 
 **Wrong:**
 ```bash
-bt new "Add login endpoint"
+yatl new "Add login endpoint"
 # AND
 - [ ] Add login endpoint  # Redundant!
 ```
 
 **Right:**
-Use bt for the objective, TodoWrite for sub-steps:
+Use yatl for the objective, TodoWrite for sub-steps:
 ```bash
-bt new "Add login endpoint"
+yatl new "Add login endpoint"
 # In TodoWrite:
 - [ ] Create route handler
 - [ ] Add validation
@@ -301,12 +301,12 @@ bt new "Add login endpoint"
 | Situation | Tool |
 |-----------|------|
 | "I'll finish this in 10 minutes" | TodoWrite |
-| "This might take a few days" | bt |
-| "I need to remember why I made this decision" | bt |
+| "This might take a few days" | yatl |
+| "I need to remember why I made this decision" | yatl |
 | "Just need to not forget these 3 steps" | TodoWrite |
-| "Someone else might need to pick this up" | bt |
-| "This is blocking other work" | bt |
+| "Someone else might need to pick this up" | yatl |
+| "This is blocking other work" | yatl |
 | "Quick checklist before I push" | TodoWrite |
-| "Recording a bug for later" | bt |
+| "Recording a bug for later" | yatl |
 | "Running a sequence of commands" | TodoWrite |
-| "Exploring options, might pause and resume" | bt |
+| "Exploring options, might pause and resume" | yatl |

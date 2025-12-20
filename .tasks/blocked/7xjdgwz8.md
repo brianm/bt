@@ -12,7 +12,7 @@ blocked_by:
 - 9cxrqv67
 ---
 
-Populate FTS5 table with title, body, log. New bt search command with --title-only, --body, --log options. Ranked results with snippets. Incremental FTS updates.
+Populate FTS5 table with title, body, log. New yatl search command with --title-only, --body, --log options. Ranked results with snippets. Incremental FTS updates.
 
 ---
 ## Log
