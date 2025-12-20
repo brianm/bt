@@ -4,7 +4,7 @@ Yet Another Task List - a minimal, file-based task tracker that lives in your gi
 
 ## Why?
 
-- **Single binary**: Written in Rust, no runtime dependencies
+- **Single binary**: No runtime dependencies
 - **Human readable**: Tasks are markdown files you can edit directly
 - **Git native**: Tasks merge, branch, and diff like code
 - **Agent friendly**: Structured format for programmatic access
