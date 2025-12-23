@@ -336,7 +336,17 @@ fn main() {
                     limit,
                     json,
                     body,
-                } => commands::list(&root, all, long, status.as_deref(), priority.as_deref(), tag.as_deref(), search.as_deref(), limit, json, body),
+                } => commands::list(&root, commands::ListOptions {
+                    all,
+                    long,
+                    status_filter: status.as_deref(),
+                    priority_filter: priority.as_deref(),
+                    tag_filter: tag.as_deref(),
+                    search_query: search.as_deref(),
+                    limit,
+                    json,
+                    show_body: body,
+                }),
 
                 Commands::Show { id, json } => commands::show(&root, &id, json),
 

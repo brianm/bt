@@ -6,6 +6,14 @@ use colored::*;
 use std::collections::{HashMap, HashSet};
 use std::path::Path;
 
+/// Context for tree printing that remains constant during recursion
+struct TreeContext<'a> {
+    task_info: &'a HashMap<TaskId, (String, String, Vec<TaskId>)>,
+    blocks: &'a HashMap<TaskId, Vec<TaskId>>,
+    active_ids: &'a HashSet<TaskId>,
+    formatter: &'a LineFormatter,
+}
+
 /// Display a DAG of task dependencies
 pub fn tree(path: &Path) -> Result<(), StoreError> {
     let store = Store::open(path)?;
@@ -74,20 +82,25 @@ pub fn tree(path: &Path) -> Result<(), StoreError> {
     // Auto-detect terminal width for line truncation
     let formatter = LineFormatter::auto();
 
+    // Create context for tree printing
+    let ctx = TreeContext {
+        task_info: &task_info,
+        blocks: &blocks,
+        active_ids: &active_ids,
+        formatter: &formatter,
+    };
+
     // Print each root and its descendants
     for (i, root_id) in roots.iter().enumerate() {
         let is_last_root = i == roots.len() - 1;
         print_task_tree(
             root_id,
-            &task_info,
-            &blocks,
-            &active_ids,
+            &ctx,
             &mut printed,
             "",
             0, // prefix_width starts at 0
             is_last_root,
             true,
-            &formatter,
         );
     }
 
@@ -96,22 +109,19 @@ pub fn tree(path: &Path) -> Result<(), StoreError> {
 
 fn print_task_tree(
     task_id: &TaskId,
-    task_info: &HashMap<TaskId, (String, String, Vec<TaskId>)>,
-    blocks: &HashMap<TaskId, Vec<TaskId>>,
-    active_ids: &HashSet<TaskId>,
+    ctx: &TreeContext<'_>,
     printed: &mut HashSet<TaskId>,
     prefix: &str,
     prefix_width: usize,
     is_last: bool,
     is_root: bool,
-    formatter: &LineFormatter,
 ) {
     // Skip if already printed
     if printed.contains(task_id) {
         return;
     }
 
-    let (title, short_id, blocked_by) = match task_info.get(task_id) {
+    let (title, short_id, blocked_by) = match ctx.task_info.get(task_id) {
         Some(info) => info,
         None => return,
     };
@@ -119,7 +129,7 @@ fn print_task_tree(
     // Get active blockers
     let active_blockers: Vec<&TaskId> = blocked_by
         .iter()
-        .filter(|b| active_ids.contains(*b))
+        .filter(|b| ctx.active_ids.contains(*b))
         .collect();
 
     // Only print if all blockers have been printed (ensures proper ordering)
@@ -155,28 +165,28 @@ fn print_task_tree(
     if active_blockers.len() > 1 {
         let blocker_ids: Vec<String> = active_blockers
             .iter()
-            .filter_map(|b| task_info.get(*b).map(|(_, sid, _)| sid.clone()))
+            .filter_map(|b| ctx.task_info.get(*b).map(|(_, sid, _)| sid.clone()))
             .collect();
         let annotation = format!("(blocked by: {})", blocker_ids.join(", "));
         // Truncate title + annotation together
         let content = format!("{}  {}", title, annotation);
-        let truncated = formatter.truncate(&content, content_prefix_width);
+        let truncated = ctx.formatter.truncate(&content, content_prefix_width);
         println!("{}{}{}  {}", prefix, connector, colored_id, truncated.dimmed());
     } else {
-        let truncated_title = formatter.truncate(title, content_prefix_width);
+        let truncated_title = ctx.formatter.truncate(title, content_prefix_width);
         println!("{}{}{}  {}", prefix, connector, colored_id, truncated_title);
     }
 
     // Get and sort children (tasks this one blocks)
-    let mut children: Vec<TaskId> = blocks.get(task_id).cloned().unwrap_or_default();
+    let mut children: Vec<TaskId> = ctx.blocks.get(task_id).cloned().unwrap_or_default();
 
     // Filter to only include children where THIS task is a blocker
     // and all OTHER blockers have been printed
     children.retain(|child_id| {
-        if let Some((_, _, child_blocked_by)) = task_info.get(child_id) {
+        if let Some((_, _, child_blocked_by)) = ctx.task_info.get(child_id) {
             let child_active_blockers: Vec<&TaskId> = child_blocked_by
                 .iter()
-                .filter(|b| active_ids.contains(*b))
+                .filter(|b| ctx.active_ids.contains(*b))
                 .collect();
 
             // All blockers except this one must be printed
@@ -189,8 +199,8 @@ fn print_task_tree(
     });
 
     children.sort_by(|a, b| {
-        let a_title = task_info.get(a).map(|(t, _, _)| t.as_str()).unwrap_or("");
-        let b_title = task_info.get(b).map(|(t, _, _)| t.as_str()).unwrap_or("");
+        let a_title = ctx.task_info.get(a).map(|(t, _, _)| t.as_str()).unwrap_or("");
+        let b_title = ctx.task_info.get(b).map(|(t, _, _)| t.as_str()).unwrap_or("");
         a_title.cmp(b_title)
     });
 
@@ -208,15 +218,12 @@ fn print_task_tree(
         let is_last_child = i == children.len() - 1;
         print_task_tree(
             child_id,
-            task_info,
-            blocks,
-            active_ids,
+            ctx,
             printed,
             &new_prefix,
             new_prefix_width,
             is_last_child,
             false,
-            formatter,
         );
     }
 }

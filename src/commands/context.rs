@@ -45,7 +45,7 @@ pub fn context(path: &Path, id: &str) -> Result<(), StoreError> {
         println!();
         for blocker_id in &task.frontmatter.blocked_by {
             let blocker_short = blocker_id.shortest_unique_prefix(&all_ids);
-            match store.find(&blocker_id.full()) {
+            match store.find(blocker_id.full()) {
                 Ok(blocker_path) => {
                     let blocker = store.load(&blocker_path)?;
                     let blocker_status = store.status_from_path(&blocker_path).unwrap_or(Status::Open);

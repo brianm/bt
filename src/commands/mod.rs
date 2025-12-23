@@ -25,7 +25,7 @@ pub use context::context;
 pub use edit::edit;
 pub use import::import;
 pub use init::init;
-pub use list::list;
+pub use list::{list, ListOptions};
 pub use log::log;
 pub use new::new;
 pub use next::next;

@@ -23,21 +23,23 @@ struct TaskJson {
     body: String,
 }
 
-pub fn list(
-    path: &Path,
-    all: bool,
-    long: bool,
-    status_filter: Option<&str>,
-    priority_filter: Option<&str>,
-    tag_filter: Option<&str>,
-    search_query: Option<&str>,
-    limit: Option<usize>,
-    json: bool,
-    show_body: bool,
-) -> Result<(), StoreError> {
+/// Options for the list command
+pub struct ListOptions<'a> {
+    pub all: bool,
+    pub long: bool,
+    pub status_filter: Option<&'a str>,
+    pub priority_filter: Option<&'a str>,
+    pub tag_filter: Option<&'a str>,
+    pub search_query: Option<&'a str>,
+    pub limit: Option<usize>,
+    pub json: bool,
+    pub show_body: bool,
+}
+
+pub fn list(path: &Path, opts: ListOptions<'_>) -> Result<(), StoreError> {
     let store = Store::open(path)?;
 
-    let tasks = if all {
+    let tasks = if opts.all {
         store.list_all()?
     } else {
         store.list_active()?
@@ -48,7 +50,7 @@ pub fn list(
     let resolver = PrefixResolver::new(&store)?;
 
     // Auto-detect terminal width for line truncation (disabled for JSON output)
-    let formatter = if json {
+    let formatter = if opts.json {
         LineFormatter::new(None)
     } else {
         LineFormatter::auto()
@@ -66,7 +68,7 @@ pub fn list(
 
     for (task_path, task) in &tasks {
         // Check limit
-        if let Some(max) = limit {
+        if let Some(max) = opts.limit {
             if count >= max {
                 break;
             }
@@ -75,27 +77,27 @@ pub fn list(
         let status = store.status_from_path(task_path).unwrap_or(Status::Open);
 
         // Apply filters
-        if let Some(sf) = status_filter {
+        if let Some(sf) = opts.status_filter {
             if status.to_string() != sf {
                 continue;
             }
         }
 
-        if let Some(pf) = priority_filter {
+        if let Some(pf) = opts.priority_filter {
             if task.priority().to_string() != pf {
                 continue;
             }
         }
 
         // Filter by tag
-        if let Some(tag) = tag_filter {
+        if let Some(tag) = opts.tag_filter {
             if !task.frontmatter.tags.iter().any(|t| t.eq_ignore_ascii_case(tag)) {
                 continue;
             }
         }
 
         // Search in title and body
-        if let Some(query) = search_query {
+        if let Some(query) = opts.search_query {
             let query_lower = query.to_lowercase();
             let title_matches = task.title().to_lowercase().contains(&query_lower);
             let body_matches = task.body.to_lowercase().contains(&query_lower);
@@ -107,7 +109,7 @@ pub fn list(
         // Get shortest unique prefix for this task
         let short_id = resolver.shortest_prefix(task.id());
 
-        if json {
+        if opts.json {
             json_tasks.push(TaskJson {
                 id: task.id().full().to_string(),
                 short_id: short_id.to_string(),
@@ -137,7 +139,7 @@ pub fn list(
                 Priority::Low => "low".blue(),
             };
 
-            if long {
+            if opts.long {
                 let title = formatter.truncate(task.title(), LONG_MARGIN);
                 println!("{}", title.bold());
                 println!("  ID: {}", short_id);
@@ -145,7 +147,7 @@ pub fn list(
                     "  Status: {}  Priority: {}",
                     status_colored, priority_colored
                 );
-                if show_body {
+                if opts.show_body {
                     let body_width = formatter
                         .available_width(BODY_INDENT)
                         .unwrap_or(200);
@@ -161,7 +163,7 @@ pub fn list(
                     "{}\t{}\t{}\t{}",
                     short_id, status_colored, priority_colored, title
                 );
-                if show_body {
+                if opts.show_body {
                     let body_width = formatter
                         .available_width(BODY_INDENT)
                         .unwrap_or(80);
@@ -176,7 +178,7 @@ pub fn list(
         count += 1;
     }
 
-    if json {
+    if opts.json {
         println!("{}", serde_json::to_string_pretty(&json_tasks).unwrap_or_default());
     }
 

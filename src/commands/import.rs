@@ -32,7 +32,7 @@ pub fn import(path: &Path, file: &str) -> Result<(), StoreError> {
 
     // Read and parse the YAML file
     let content = fs::read_to_string(file)
-        .map_err(|e| StoreError::Io(e))?;
+        .map_err(StoreError::Io)?;
 
     let task_defs: Vec<TaskDef> = serde_yaml::from_str(&content)
         .map_err(|e| StoreError::Parse(format!("Failed to parse YAML: {}", e)))?;
