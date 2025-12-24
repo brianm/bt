@@ -44,6 +44,7 @@ Examples:
 
 ```markdown
 ---
+yatl_version: 1
 title: Fix login bug with special characters
 id: a1b2c3d4
 created: 2025-11-25T10:30:45Z
@@ -71,11 +72,6 @@ Users cannot log in when their password contains special characters like `&` or 
 - [ ] Add test coverage for edge cases
 
 ---
-## Log
-
-Append-only section for updates. Each entry is timestamped.
-
----
 # Log: 2025-11-25T11:00:00Z brian
 
 Found the root cause - password is being interpolated into SQL without proper escaping in the legacy auth path.
@@ -92,9 +88,11 @@ Fixed in commit abc1234. Need to add tests before closing.
 
 | Field | Type | Description |
 |-------|------|-------------|
+| `yatl_version` | integer | Task format version (current: 1). Used for migrations. |
 | `title` | string | Human-readable title |
 | `id` | string | Unique 8-character Crockford base32 identifier |
 | `created` | ISO 8601 | Creation timestamp in UTC |
+| `updated` | ISO 8601 | Last modification timestamp |
 
 **Note**: Status is NOT stored in the file. It is derived from the directory the file is in.
 
@@ -102,11 +100,13 @@ Fixed in commit abc1234. Need to add tests before closing.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `updated` | ISO 8601 | `created` | Last modification timestamp |
 | `author` | string | - | Creator's identifier |
 | `priority` | enum | `medium` | One of: `low`, `medium`, `high`, `critical` |
 | `tags` | list | `[]` | Freeform labels |
 | `blocked_by` | list | `[]` | Task IDs that must close before this can proceed |
+| `blocks` | list | `[]` | Task IDs that this task blocks (reverse of `blocked_by`) |
+| `parent` | string | - | Parent task ID (for hierarchies) |
+| `children` | list | `[]` | Child task IDs (for hierarchies) |
 
 ## Status Transitions
 
@@ -138,16 +138,23 @@ When a blocking task is closed, all tasks it was blocking are checked - if they 
 
 ## Log Section
 
-The log section follows the YAML frontmatter and main description. It's separated by a horizontal rule (`---`) and a `## Log` heading.
+The log section follows the YAML frontmatter and main description. Each log entry begins with a horizontal rule and H1 header:
+
+```
+---
+# Log: {ISO-8601-timestamp} {author}
+
+{message content}
+```
 
 Each log entry:
-- Starts with a two-line separator: `---` followed by `# Log: {ISO-8601-timestamp} {author}`
-- Contains freeform markdown (including headings, since the entry separator is unique)
+- Starts with `---` followed by `# Log: {ISO-8601-timestamp} {author}`
+- Contains freeform markdown (can include H2+ headings within the entry)
 - Is append-only (never edit previous entries)
 
-The two-line separator (`---\n# Log: {timestamp} {author}`) is used because it's extremely unlikely to appear in normal markdown content, making parsing robust even when log entries contain markdown headings.
+The `---\n# Log:` pattern is used because it's extremely unlikely to appear in normal markdown content, making parsing robust even when log entries contain markdown headings.
 
-This structure makes concurrent additions merge cleanly.
+This structure makes concurrent additions merge cleanly with git's union merge strategy.
 
 ## Dependencies
 

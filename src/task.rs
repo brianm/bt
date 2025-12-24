@@ -63,9 +63,20 @@ impl std::str::FromStr for Priority {
     }
 }
 
+/// Current task format version
+pub const TASK_FORMAT_VERSION: u32 = 1;
+
+/// Default version for tasks without a version field (pre-v1 format)
+fn default_version() -> u32 {
+    0
+}
+
 /// YAML frontmatter for a task (status is NOT stored here - it's derived from directory)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TaskFrontmatter {
+    /// Task format version (for migrations)
+    #[serde(default = "default_version")]
+    pub yatl_version: u32,
     pub title: String,
     pub id: TaskId,
     pub created: DateTime<Utc>,
@@ -102,6 +113,7 @@ impl Task {
         let id = TaskId::new();
 
         let frontmatter = TaskFrontmatter {
+            yatl_version: TASK_FORMAT_VERSION,
             title,
             id,
             created: now,
@@ -143,13 +155,10 @@ impl Task {
             serde_yaml::from_str(yaml).map_err(|e| format!("Failed to parse frontmatter: {}", e))?;
 
         // Split body and log section
-        let (body, log) = if let Some(log_start) = rest.find("\n---\n## Log") {
+        // Log starts at first "---\n# Log:" pattern
+        let (body, log) = if let Some(log_start) = rest.find("\n---\n# Log:") {
             let body = rest[..log_start].trim().to_string();
-            let log = rest[log_start + 5..].trim_start_matches("## Log").trim().to_string();
-            (body, log)
-        } else if let Some(log_start) = rest.find("\n## Log") {
-            let body = rest[..log_start].trim().to_string();
-            let log = rest[log_start..].trim_start_matches("## Log").trim().to_string();
+            let log = rest[log_start + 1..].to_string(); // Include the "---\n# Log:..." part
             (body, log)
         } else {
             (rest.trim().to_string(), String::new())
@@ -173,7 +182,8 @@ impl Task {
             md.push_str(&format!("\n{}\n", self.body));
         }
 
-        md.push_str("\n---\n## Log\n\n");
+        // Log entries start with "---\n# Log:" - just add a newline separator
+        md.push('\n');
         md.push_str(&self.log);
 
         md
